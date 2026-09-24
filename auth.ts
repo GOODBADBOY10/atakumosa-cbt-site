@@ -4,12 +4,13 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { checkLoginRateLimit } from "@/lib/ratelimit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        identifier: {}, // email OR reg number
+        identifier: {},
         password: {},
       },
       authorize: async (credentials) => {
@@ -18,7 +19,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!identifier || !password) return null;
 
-        // Try matching by email first, then reg number
+        // Rate limit BEFORE touching the database - protects against brute force
+        const { success } = await checkLoginRateLimit(identifier);
+        if (!success) {
+          throw new Error("Too many login attempts. Please wait a minute and try again.");
+        }
+
         const [user] = await db
           .select()
           .from(users)
@@ -37,11 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!foundUser) return null;
 
-        const passwordValid = await bcrypt.compare(
-          password,
-          foundUser.passwordHash
-        );
-
+        const passwordValid = await bcrypt.compare(password, foundUser.passwordHash);
         if (!passwordValid) return null;
 
         return {
@@ -49,6 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: foundUser.email,
           name: foundUser.fullName,
           role: foundUser.role,
+          mustChangePassword: foundUser.mustChangePassword,
         };
       },
     }),
@@ -59,6 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.mustChangePassword = user.mustChangePassword;
       }
       return token;
     },
@@ -66,6 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.mustChangePassword = token.mustChangePassword as boolean;
       }
       return session;
     },

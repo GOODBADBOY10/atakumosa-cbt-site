@@ -30,7 +30,8 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   fullName: text("full_name").notNull(),
   role: roleEnum("role").notNull(),
-  regNumber: text("reg_number").unique(), // students only
+  regNumber: text("reg_number").unique(),
+  mustChangePassword: boolean("must_change_password").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -141,6 +142,7 @@ export const examAttempts = pgTable("exam_attempts", {
   totalPossible: integer("total_possible"),
   gradingComplete: boolean("grading_complete").default(false),
   tabSwitchCount: integer("tab_switch_count").default(0),
+  questionOrder: jsonb("question_order"), // array of question IDs, fixed at attempt creation
 });
 
 // ---------- ANSWERS ----------
@@ -156,4 +158,19 @@ export const answers = pgTable("answers", {
   isCorrect: boolean("is_correct"), // null for essay until graded
   pointsAwarded: integer("points_awarded"),
   teacherComment: text("teacher_comment"),
+});
+
+export const auditLogs = pgTable("audit_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id),
+  userRole: text("user_role"),
+  action: text("action").notNull(), // e.g. "created_teacher", "published_exam", "graded_answer"
+  details: jsonb("details"), // freeform context, e.g. { examId, examTitle }
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const loginAttempts = pgTable("login_attempts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  identifier: text("identifier").notNull(), // email or reg number attempted
+  attemptedAt: timestamp("attempted_at").defaultNow().notNull(),
 });
