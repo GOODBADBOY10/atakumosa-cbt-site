@@ -19,7 +19,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!identifier || !password) return null;
 
-        // Rate limit BEFORE touching the database - protects against brute force
         const { success } = await checkLoginRateLimit(identifier);
         if (!success) {
           throw new Error("Too many login attempts. Please wait a minute and try again.");
@@ -41,9 +40,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               .limit(1)
           )[0];
 
+        // console.log("LOGIN DEBUG — identifier typed:", identifier);
+        // console.log("LOGIN DEBUG — user found in DB?", !!foundUser);
+        if (foundUser) {
+          // console.log("LOGIN DEBUG — foundUser email:", foundUser.email, "regNumber:", foundUser.regNumber);
+        }
+
         if (!foundUser) return null;
 
         const passwordValid = await bcrypt.compare(password, foundUser.passwordHash);
+        // console.log("LOGIN DEBUG — password valid?", passwordValid);
+
         if (!passwordValid) return null;
 
         return {
