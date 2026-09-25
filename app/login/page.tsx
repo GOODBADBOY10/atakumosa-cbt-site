@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
@@ -10,6 +11,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const passwordChanged = searchParams.get("passwordChanged") === "true";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +73,12 @@ export default function LoginPage() {
             Computer-based testing for students, teachers &amp; administrators
           </p>
         </div>
+
+        {passwordChanged && (
+          <p className="text-center text-green-700 bg-green-50 border border-green-200 rounded-lg py-2 px-4 mb-4 text-sm">
+            Password changed successfully. Please log in again.
+          </p>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -150,6 +159,6 @@ export default function LoginPage() {
       `}</style>
 
     </div>
-  
-);
+
+  );
 }
