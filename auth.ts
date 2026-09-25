@@ -58,12 +58,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    jwt: async ({ token, user }) => {
+    jwt: async ({ token, user, trigger }) => {
       if (user) {
         token.role = user.role;
         token.id = user.id;
         token.mustChangePassword = user.mustChangePassword;
       }
+
+      // When the client calls update() (e.g. after changing password),
+      // re-fetch the latest value from the database instead of trusting
+      // the stale value already baked into the token.
+      if (trigger === "update" && token.id) {
+        const [freshUser] = await db
+          .select({ mustChangePassword: users.mustChangePassword })
+          .from(users)
+          .where(eq(users.id, token.id as string));
+
+        if (freshUser) {
+          token.mustChangePassword = freshUser.mustChangePassword;
+        }
+      }
+
       return token;
     },
     session: async ({ session, token }) => {
