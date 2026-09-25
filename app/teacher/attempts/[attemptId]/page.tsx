@@ -63,7 +63,7 @@ export default function GradeAttemptPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto text-gray-900">
-      <DashboardHeader title="Grade Submission" />
+      <DashboardHeader title="Grade Submission" backHref="/teacher/exams" backLabel="← Back" />
 
       <div className="space-y-6">
         {answers.map((a, idx) => (
@@ -128,6 +128,7 @@ export default function GradeAttemptPage() {
           </div>
         ))}
       </div>
+      
     </div>
   );
 }

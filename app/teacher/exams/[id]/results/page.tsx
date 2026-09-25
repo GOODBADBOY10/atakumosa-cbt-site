@@ -44,7 +44,7 @@ export default function ExamResultsPage() {
 
     return (
         <div className="p-8 max-w-5xl mx-auto text-gray-900">
-            <DashboardHeader title={`Results: ${examTitle}`} />
+            <DashboardHeader title={`Results: ${examTitle}`} backHref="/teacher/exams" backLabel="← Exam Builder" />
 
             <a href={`/teacher/exams/${examId}/analytics`} className="text-blue-600 hover:underline text-sm font-medium mb-4 inline-block">
                 View Analytics →

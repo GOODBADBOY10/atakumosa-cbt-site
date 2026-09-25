@@ -42,7 +42,7 @@ export default function ExamAnalyticsPage() {
 
     return (
         <div className="p-8 max-w-4xl mx-auto text-gray-900">
-            <DashboardHeader title={`Analytics: ${data.examTitle}`} />
+            <DashboardHeader title={`Analytics: ${data.examTitle}`} backHref="/teacher/exams" backLabel="← Exam Builder" />
 
             <div className="grid grid-cols-4 gap-4 mb-8">
                 <div className="bg-white p-4 rounded-lg shadow text-center">
