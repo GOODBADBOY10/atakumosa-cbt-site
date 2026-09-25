@@ -36,7 +36,7 @@ export default function ChangePasswordPage() {
 
     if (res.ok) {
       await update(); // refresh session to clear mustChangePassword flag
-      router.push("/");
+      window.location.href = "/"; // full reload, not a client-side route cache hit
     } else {
       setError(data.error);
     }
