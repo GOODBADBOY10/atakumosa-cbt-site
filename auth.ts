@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { checkLoginRateLimit } from "@/lib/ratelimit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
