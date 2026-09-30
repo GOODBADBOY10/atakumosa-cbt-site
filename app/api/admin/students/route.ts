@@ -75,18 +75,14 @@ export async function POST(req: Request) {
     const [newStudent] = await db
       .insert(users)
       .values({
-        email: `${regNumber}@student.local`, // placeholder unique email since students log in via regNumber
+        email: `${regNumber}@student.local`,
         fullName,
         regNumber,
         passwordHash,
         role: "student",
+        mustChangePassword: false, // school wants surname to stay as the permanent password
       })
       .returning({ id: users.id, fullName: users.fullName, regNumber: users.regNumber });
-
-    await db.insert(studentClasses).values({
-      studentId: newStudent.id,
-      classId,
-    });
 
     await logAction(session.user.id, "admin", "created_student", {
       studentId: newStudent.id,

@@ -12,7 +12,7 @@ const rowSchema = z.object({
   FullName: z.string().trim().min(2),
   RegNumber: z.string().trim().min(2),
   ClassName: z.string().trim().min(1),
-  Password: z.string().min(6).optional(),
+  Password: z.string().trim().min(2, "Password (student's surname) is required"),
 });
 
 export async function POST(req: Request) {
@@ -80,8 +80,7 @@ export async function POST(req: Request) {
       fullName: data.FullName,
       regNumber: data.RegNumber,
       classId,
-      password: data.Password || data.RegNumber, // default temp password = their own reg number if not provided
-      // password: data.Password || "student123", // default temp password if not provided
+      password: data.Password,
     });
   });
 
@@ -131,6 +130,7 @@ export async function POST(req: Request) {
           regNumber: row.regNumber,
           passwordHash,
           role: "student",
+          mustChangePassword: false, // school wants surname to stay as the permanent password
         })
         .returning({ id: users.id });
 

@@ -4,7 +4,7 @@ import { users } from "../lib/db/schema";
 import bcrypt from "bcryptjs";
 
 async function seedAdmin() {
-  const passwordHash = await bcrypt.hash("changeme123", 10);
+  const passwordHash = await bcrypt.hash("school", 10);
 
   await db.insert(users).values({
     email: "admin@school.com",
@@ -13,7 +13,7 @@ async function seedAdmin() {
     role: "admin",
   });
 
-  console.log("Admin created: admin@school.com / changeme123");
+  console.log("Admin created: admin@school.com / school");
   process.exit(0);
 }
 

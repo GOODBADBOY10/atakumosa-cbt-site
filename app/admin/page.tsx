@@ -166,8 +166,8 @@ export default function AdminDashboard() {
 
   const downloadStudentTemplate = () => {
     const templateData = [
-      { FullName: "Chidinma Okoro", RegNumber: "STU001", ClassName: "JSS2A", Password: "" },
-      { FullName: "Tunde Bello", RegNumber: "STU002", ClassName: "JSS2A", Password: "" },
+      { FullName: "Chidinma Okoro", RegNumber: "STU001", ClassName: "JSS2A", Password: "Okoro" },
+      { FullName: "Tunde Bello", RegNumber: "STU002", ClassName: "JSS2A", Password: "Bello" },
       { FullName: "", RegNumber: "", ClassName: "", Password: "" },
     ];
 
@@ -338,7 +338,7 @@ export default function AdminDashboard() {
       <section className="bg-white p-6 rounded-lg shadow mt-10">
         <h2 className="text-xl font-semibold mb-4">Bulk Upload Students (Excel/CSV)</h2>
         <p className="text-sm text-gray-500 mb-3">
-          Columns required: FullName, RegNumber, ClassName (must match an existing class name exactly), Password (optional — if left blank, each student's temporary password will be their own Registration Number)
+          Columns required: FullName, RegNumber, ClassName (must match an existing class name exactly), Password (required — enter each student's surname, as agreed with the school)
         </p>
         <button
           onClick={downloadStudentTemplate}
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
           />
           <input
             type="text"
-            placeholder="Temporary Password"
+            placeholder="Password (student's surname)"
             value={studentPassword}
             onChange={(e) => setStudentPassword(e.target.value)}
             className="border rounded px-3 py-2 text-gray-900 bg-white"
