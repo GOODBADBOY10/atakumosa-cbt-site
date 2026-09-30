@@ -203,6 +203,10 @@ export default function AdminDashboard() {
         Locked Accounts →
       </a>
 
+      <a href="/admin/report-template" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
+        Result Sheets →
+      </a>
+
       {/* Subjects */}
       <section className="mb-10 bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Subjects</h2>
