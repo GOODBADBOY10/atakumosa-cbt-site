@@ -4,6 +4,17 @@ import { db } from "@/lib/db";
 import { exams, studentClasses, examAttempts, subjects } from "@/lib/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
 
+// Nigeria is UTC+1 with no DST, so we compare calendar dates in that zone
+// rather than the server's own timezone (which may differ once deployed).
+function getDateKeyInLagos(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Lagos",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date); // "en-CA" gives YYYY-MM-DD directly
+}
+
 export async function GET() {
   const session = await auth();
   if (session?.user?.role !== "student") {
@@ -39,6 +50,12 @@ export async function GET() {
         and(eq(exams.status, "published"), inArray(exams.classId, classIds))
       );
 
+    // Only keep exams whose scheduled date is TODAY (Africa/Lagos calendar day)
+    const todayKey = getDateKeyInLagos(new Date());
+    const todaysExams = relevantExams.filter(
+      (exam) => getDateKeyInLagos(new Date(exam.startsAt)) === todayKey
+    );
+
     const attempts = await db
       .select({ examId: examAttempts.examId, submittedAt: examAttempts.submittedAt })
       .from(examAttempts)
@@ -46,7 +63,7 @@ export async function GET() {
 
     const attemptMap = new Map(attempts.map((a) => [a.examId, a.submittedAt]));
 
-    const result = relevantExams.map((exam) => ({
+    const result = todaysExams.map((exam) => ({
       ...exam,
       alreadySubmitted: attemptMap.has(exam.id) && attemptMap.get(exam.id) !== null,
       inProgress: attemptMap.has(exam.id) && attemptMap.get(exam.id) === null,

@@ -267,43 +267,95 @@ export default function TeacherExamsPage() {
             {myExams.length === 0 ? (
               <p className="text-sm text-gray-500">No exams created yet.</p>
             ) : (
-              <ul className="divide-y">
-                {myExams.map((exam) => (
-                  <li
-                    key={exam.id}
-                    className="py-3 flex items-center justify-between"
-                  >
+              (() => {
+                const now = new Date();
+                const live = myExams.filter(
+                  (e) => e.status === "published" && new Date(e.startsAt) <= now && new Date(e.endsAt) >= now
+                );
+                const upcoming = myExams.filter(
+                  (e) => e.status !== "closed" && new Date(e.startsAt) > now
+                );
+                const past = myExams.filter(
+                  (e) => e.status === "closed" || new Date(e.endsAt) < now
+                );
+
+                const renderExamRow = (exam: Exam) => (
+                  <li key={exam.id} className="py-3 flex items-center justify-between">
                     <div>
                       <p className="font-medium">{exam.title}</p>
                       <p className="text-sm text-gray-500">
                         {exam.durationMinutes} mins •{" "}
                         {new Date(exam.startsAt).toLocaleString()} →{" "}
                         {new Date(exam.endsAt).toLocaleString()} •{" "}
-                        <span className="uppercase font-medium">
-                          {exam.status}
-                        </span>
+                        <span className="uppercase font-medium">{exam.status}</span>
                       </p>
                     </div>
                     <div className="flex gap-2 items-center">
                       {exam.status === "draft" && (
-                        <button onClick={() => updateStatus(exam.id, "published")} className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                        <button
+                          onClick={() => updateStatus(exam.id, "published")}
+                          className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                        >
                           Publish
                         </button>
                       )}
                       {exam.status === "published" && (
-                        <button onClick={() => updateStatus(exam.id, "closed")} className="text-sm bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700">
+                        <button
+                          onClick={() => updateStatus(exam.id, "closed")}
+                          className="text-sm bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700"
+                        >
                           Close
                         </button>
                       )}
-                      <a href={`/teacher/exams/${exam.id}/results`} className="text-sm text-blue-600 hover:underline">
+                      <a
+                        href={`/teacher/exams/${exam.id}/results`}
+                        className="text-sm text-blue-600 hover:underline"
+                      >
                         View Results
                       </a>
                     </div>
                   </li>
-                ))}
-              </ul>
+                );
+
+                return (
+                  <div className="space-y-8">
+                    {live.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-green-700 mb-2 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                          Live Now ({live.length})
+                        </h3>
+                        <ul className="divide-y border rounded-lg">{live.map(renderExamRow)}</ul>
+                      </div>
+                    )}
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-blue-700 mb-2">
+                        Upcoming ({upcoming.length})
+                      </h3>
+                      {upcoming.length === 0 ? (
+                        <p className="text-sm text-gray-400">No upcoming exams.</p>
+                      ) : (
+                        <ul className="divide-y border rounded-lg">{upcoming.map(renderExamRow)}</ul>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 mb-2">
+                        Past / Closed ({past.length})
+                      </h3>
+                      {past.length === 0 ? (
+                        <p className="text-sm text-gray-400">No past exams yet.</p>
+                      ) : (
+                        <ul className="divide-y border rounded-lg">{past.map(renderExamRow)}</ul>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()
             )}
           </section>
+
         </>
       )}
     </div>

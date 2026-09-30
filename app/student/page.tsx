@@ -58,7 +58,9 @@ export default function StudentDashboard() {
       {loading ? (
         <p>Loading exams...</p>
       ) : exams.length === 0 ? (
-        <p className="text-gray-500">No exams available right now.</p>
+        <div className="bg-white p-8 rounded-lg shadow text-center">
+          <p className="text-gray-500">No exam scheduled for you today.</p>
+        </div>
       ) : (
         <div className="grid gap-4">
           {exams.map((exam) => {
@@ -78,7 +80,6 @@ export default function StudentDashboard() {
                     {new Date(exam.endsAt).toLocaleString()}
                   </p>
                 </div>
-
                 <div>
                   {state === "submitted" && (
                     <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
@@ -109,6 +110,7 @@ export default function StudentDashboard() {
           })}
         </div>
       )}
+
     </div>
   );
 }
