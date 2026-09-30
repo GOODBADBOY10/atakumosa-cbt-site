@@ -41,18 +41,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               .limit(1)
           )[0];
 
-        // console.log("LOGIN DEBUG — identifier typed:", identifier);
-        // console.log("LOGIN DEBUG — user found in DB?", !!foundUser);
-        if (foundUser) {
-          // console.log("LOGIN DEBUG — foundUser email:", foundUser.email, "regNumber:", foundUser.regNumber);
-        }
-
         if (!foundUser) return null;
 
-        const passwordValid = await bcrypt.compare(password, foundUser.passwordHash);
-        // console.log("LOGIN DEBUG — password valid?", passwordValid);
+        // Account already locked from previous failed attempts - block immediately,
+        // even if they somehow now type the correct password.
+        if (foundUser.isLocked) {
+          throw new Error("ACCOUNT_LOCKED");
+        }
 
-        if (!passwordValid) return null;
+        const passwordValid = await bcrypt.compare(password, foundUser.passwordHash);
+
+        if (!passwordValid) {
+          const newFailedCount = foundUser.failedLoginAttempts + 1;
+          const shouldLock = newFailedCount >= 3;
+
+          await db
+            .update(users)
+            .set({
+              failedLoginAttempts: newFailedCount,
+              isLocked: shouldLock,
+            })
+            .where(eq(users.id, foundUser.id));
+
+          if (shouldLock) {
+            throw new Error("ACCOUNT_LOCKED");
+          }
+
+          return null;
+        }
+
+        // Correct password - reset the failed-attempt counter
+        if (foundUser.failedLoginAttempts > 0) {
+          await db
+            .update(users)
+            .set({ failedLoginAttempts: 0 })
+            .where(eq(users.id, foundUser.id));
+        }
 
         return {
           id: foundUser.id,

@@ -134,10 +134,10 @@ export default async function HomePage() {
       <section id="anthem" className="max-w-3xl mx-auto px-6 py-16 text-center">
         <h2 className="text-2xl font-bold mb-4">School Anthem</h2>
         <div className="bg-gray-50 border rounded-xl p-6">
-          {/* <audio controls className="w-full mb-4"> */}
-            {/* <source src="/audio/anthem.mp3" type="audio/mpeg" /> */}
-            {/* Your browser does not support the audio element. */}
-          {/* </audio> */}
+          <audio controls className="w-full mb-4">
+            <source src="/audio/anthem.mp3" type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
           <p className="whitespace-pre-line text-left text-gray-600 text-sm">
             {/* TODO: Replace with actual anthem lyrics */}
             [Anthem lyrics go here once provided by the school.]

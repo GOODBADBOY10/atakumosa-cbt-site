@@ -31,6 +31,8 @@ function LoginForm() {
     if (res?.error) {
       if (res.error.includes("Too many")) {
         setError("Too many login attempts. Please wait a minute and try again.");
+      } else if (res.error.includes("ACCOUNT_LOCKED")) {
+        setError("Your account has been locked after 3 failed attempts. Please see your school administrator to reset it.");
       } else {
         setError("Invalid email/reg number or password");
       }
