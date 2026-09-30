@@ -20,7 +20,7 @@ export function PublicHeader() {
                 <Link href="/" className="flex items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src="/images/logo.png"
+                        src="/images/logo.jpg"
                         alt="Atakumosa High School Logo"
                         className="w-9 h-9 rounded-full object-cover"
                     />
