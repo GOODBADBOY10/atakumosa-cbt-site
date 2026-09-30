@@ -12,9 +12,15 @@ export default async function HomePage() {
 
   const heroImages = [
     "/images/slider-1.jpg",
-    "/images/gallery-17.jpg",
-    "/images/gallery-16.jpg",
+    "/images/gallery-8.jpg",
+    "/images/gallery-9.jpg",
+    "/images/gallery-10.jpg",
+    "/images/gallery-12.jpg",
+    "/images/gallery-13.jpg",
+    "/images/gallery-14.jpg",
     "/images/gallery-15.jpg",
+    "/images/gallery-16.jpg",
+    "/images/gallery-17.jpg",
   ];
 
   return (
