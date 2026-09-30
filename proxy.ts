@@ -1,12 +1,16 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
+const PUBLIC_PATHS = ["/", "/login"];
+
 export const proxy = auth((req) => {
   const { pathname } = req.nextUrl;
   const role = req.auth?.user?.role;
   const mustChange = req.auth?.user?.mustChangePassword;
 
-  if (!req.auth && pathname !== "/login") {
+  const isPublicPath = PUBLIC_PATHS.includes(pathname);
+
+  if (!req.auth && !isPublicPath) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -32,3 +36,38 @@ export const proxy = auth((req) => {
 export const config = {
   matcher: ["/", "/admin/:path*", "/teacher/:path*", "/student/:path*", "/change-password"],
 };
+
+// import { auth } from "@/auth";
+// import { NextResponse } from "next/server";
+
+// export const proxy = auth((req) => {
+//   const { pathname } = req.nextUrl;
+//   const role = req.auth?.user?.role;
+//   const mustChange = req.auth?.user?.mustChangePassword;
+
+//   if (!req.auth && pathname !== "/login") {
+//     return NextResponse.redirect(new URL("/login", req.url));
+//   }
+
+//   if (req.auth && mustChange && pathname !== "/change-password") {
+//     return NextResponse.redirect(new URL("/change-password", req.url));
+//   }
+
+//   if (pathname.startsWith("/admin") && role !== "admin") {
+//     return NextResponse.redirect(new URL("/login", req.url));
+//   }
+
+//   if (pathname.startsWith("/teacher") && role !== "teacher") {
+//     return NextResponse.redirect(new URL("/login", req.url));
+//   }
+
+//   if (pathname.startsWith("/student") && role !== "student") {
+//     return NextResponse.redirect(new URL("/login", req.url));
+//   }
+
+//   return NextResponse.next();
+// });
+
+// export const config = {
+//   matcher: ["/", "/admin/:path*", "/teacher/:path*", "/student/:path*", "/change-password"],
+// };
