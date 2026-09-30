@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { PublicHeader } from "@/app/components/PublicHeader";
+import { HeroSlideshow } from "@/app/components/HeroSlideshow";
 
 export default async function HomePage() {
   const session = await auth();
@@ -9,13 +10,20 @@ export default async function HomePage() {
   if (session?.user?.role === "teacher") redirect("/teacher");
   if (session?.user?.role === "student") redirect("/student");
 
+  const heroImages = [
+    "/images/slider-1.jpg",
+    "/images/gallery-17.jpg",
+    "/images/gallery-16.jpg",
+    "/images/gallery-15.jpg",
+  ];
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <PublicHeader />
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-linear-to-br from-blue-900 via-blue-700 to-blue-500 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-24 text-center relative z-10">
+      <HeroSlideshow images={heroImages} interval={3000}>
+        <div className="max-w-5xl mx-auto px-6 py-24 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo.jpg"
@@ -45,14 +53,7 @@ export default async function HomePage() {
             </a>
           </div>
         </div>
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
-          }}
-        />
-      </section>
+      </HeroSlideshow>
 
       {/* ABOUT / HISTORY */}
       <section id="about" className="max-w-4xl mx-auto px-6 py-16">
@@ -86,19 +87,19 @@ export default async function HomePage() {
       </section>
 
       {/* DIRECTOR'S SPEECH */}
-      <section id="director" className="max-w-4xl mx-auto px-6 py-16">
+      <section id="director" className="max-w-5xl mx-auto px-6 py-16">
         <h2 className="text-2xl font-bold mb-8 text-center">
           A Message From Our Director
         </h2>
-        <div className="grid sm:grid-cols-[160px_1fr] gap-8 items-start">
+        <div className="grid sm:grid-cols-[280px_1fr] gap-8 items-start">
           <div className="flex flex-col items-center sm:items-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/director.jpg"
               alt="Mr. Odedele, Director"
-              className="w-32 h-32 rounded-full object-cover border-2 border-gray-200"
+              className="w-64 sm:w-full aspect-3/4 rounded-xl object-cover object-top border-2 border-gray-200 shadow-md"
             />
-            <p className="mt-3 font-semibold text-center sm:text-left">Mr. Odedele</p>
+            <p className="mt-4 font-semibold text-lg text-center sm:text-left">Mr. Odedele</p>
             <p className="text-sm text-gray-500 text-center sm:text-left">Director</p>
             <p className="text-xs text-gray-500 mt-1">+234 803 566 7978</p>
             <p className="text-xs text-gray-500">oolugbemi464@gmail.com</p>
@@ -126,7 +127,7 @@ export default async function HomePage() {
               />
             ))}
           </div>
-          
+
         </div>
       </section>
 
@@ -135,8 +136,8 @@ export default async function HomePage() {
         <h2 className="text-2xl font-bold mb-4">School Anthem</h2>
         <div className="bg-gray-50 border rounded-xl p-6">
           {/* <audio controls className="w-full mb-4"> */}
-            {/* <source src="/audio/anthem.mp3" type="audio/mpeg" /> */}
-            {/* Your browser does not support the audio element. */}
+          {/* <source src="/audio/anthem.mp3" type="audio/mpeg" /> */}
+          {/* Your browser does not support the audio element. */}
           {/* </audio> */}
           <p className="whitespace-pre-line text-left text-gray-600 text-sm">
             {/* TODO: Replace with actual anthem lyrics */}
@@ -183,6 +184,7 @@ export default async function HomePage() {
           Staff & Student CBT Login →
         </a>
       </footer>
+
     </div>
   );
 }
