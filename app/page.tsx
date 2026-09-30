@@ -126,12 +126,7 @@ export default async function HomePage() {
               />
             ))}
           </div>
-          {/* <p className="text-xs text-gray-400 text-center mt-4">
-            Drop files named gallery-1.jpg through gallery-10.jpg into /public/images/ to fill this section.
-          </p>
-          <p className="text-xs text-gray-400 text-center mt-4">
-            Drop files named gallery-1.jpg through gallery-6.jpg into /public/images/ to fill this section.
-          </p> */}
+          
         </div>
       </section>
 
