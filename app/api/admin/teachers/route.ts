@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { users, teacherAssignments } from "@/lib/db/schema";
+import { users, teacherAssignments, subjects, classes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -21,6 +21,33 @@ const teacherSchema = z.object({
   assignments: z.array(assignmentSchema).optional().default([]),
 });
 
+// export async function GET() {
+//   const session = await auth();
+//   if (session?.user?.role !== "admin") {
+//     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+//   }
+
+//   try {
+//     const teachers = await db
+//       .select({
+//         id: users.id,
+//         email: users.email,
+//         fullName: users.fullName,
+//         createdAt: users.createdAt,
+//       })
+//       .from(users)
+//       .where(eq(users.role, "teacher"));
+
+//     return NextResponse.json(teachers);
+//   } catch (err) {
+//     console.error("Failed to fetch teachers:", err);
+//     return NextResponse.json(
+//       { error: "Something went wrong. Please try again." },
+//       { status: 500 }
+//     );
+//   }
+// }
+
 export async function GET() {
   const session = await auth();
   if (session?.user?.role !== "admin") {
@@ -38,13 +65,27 @@ export async function GET() {
       .from(users)
       .where(eq(users.role, "teacher"));
 
-    return NextResponse.json(teachers);
+    const assignments = await db
+      .select({
+        teacherId: teacherAssignments.teacherId,
+        subjectName: subjects.name,
+        className: classes.name,
+      })
+      .from(teacherAssignments)
+      .innerJoin(subjects, eq(teacherAssignments.subjectId, subjects.id))
+      .innerJoin(classes, eq(teacherAssignments.classId, classes.id));
+
+    const result = teachers.map((t) => ({
+      ...t,
+      assignments: assignments
+        .filter((a) => a.teacherId === t.id)
+        .map((a) => `${a.subjectName} (${a.className})`),
+    }));
+
+    return NextResponse.json(result);
   } catch (err) {
     console.error("Failed to fetch teachers:", err);
-    return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 

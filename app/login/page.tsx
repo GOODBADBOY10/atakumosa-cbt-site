@@ -67,7 +67,7 @@ function LoginForm() {
     <div className="relative z-10 w-full max-w-md px-4 py-20">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-white drop-shadow-sm tracking-tight">
-          Atakumosa CBT Platform
+          Atakunmosa CBT Platform
         </h1>
         <p className="text-white/80 mt-2 text-sm">
           Computer-based testing for students, teachers &amp; administrators

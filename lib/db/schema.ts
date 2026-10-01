@@ -34,6 +34,8 @@ export const users = pgTable("users", {
   mustChangePassword: boolean("must_change_password").default(true).notNull(),
   failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
   isLocked: boolean("is_locked").default(false).notNull(),
+  resetTokenHash: text("reset_token_hash"),
+  resetTokenExpiresAt: timestamp("reset_token_expires_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -66,7 +68,7 @@ export const studentClasses = pgTable("student_classes", {
 export const teacherAssignments = pgTable("teacher_assignments", {
   id: uuid("id").defaultRandom().primaryKey(),
   teacherId: uuid("teacher_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   subjectId: uuid("subject_id")
     .references(() => subjects.id)
@@ -164,7 +166,7 @@ export const answers = pgTable("answers", {
 
 export const auditLogs = pgTable("audit_logs", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").references(() => users.id),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   userRole: text("user_role"),
   action: text("action").notNull(), // e.g. "created_teacher", "published_exam", "graded_answer"
   details: jsonb("details"), // freeform context, e.g. { examId, examTitle }
