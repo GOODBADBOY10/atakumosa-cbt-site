@@ -4,6 +4,20 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { HeroSlideshow } from "@/app/components/HeroSlideshow";
+
+const loginImages = [
+  "/images/slider-1.jpg",
+  "/images/gallery-8.jpg",
+  "/images/gallery-9.jpg",
+  "/images/gallery-10.jpg",
+  "/images/gallery-12.jpg",
+  "/images/gallery-13.jpg",
+  "/images/gallery-14.jpg",
+  "/images/gallery-15.jpg",
+  "/images/gallery-16.jpg",
+  "/images/gallery-17.jpg",
+];
 
 function LoginForm() {
   const [identifier, setIdentifier] = useState("");
@@ -50,7 +64,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative z-10 w-full max-w-md px-4">
+    <div className="relative z-10 w-full max-w-md px-4 py-20">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-white drop-shadow-sm tracking-tight">
           Atakumosa CBT Platform
@@ -121,73 +135,24 @@ function LoginForm() {
       <p className="text-center text-white/70 text-xs mt-6">
         Having trouble logging in? Contact your school administrator.
       </p>
+
+      <div className="text-center mt-4">
+        <a href="/" className="text-white/70 text-xs hover:text-white hover:underline">
+          ← Back to school website
+        </a>
+      </div>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="bg-scene bg-scene-1" />
-      <div className="bg-scene bg-scene-2" />
-      <div className="bg-scene bg-scene-3" />
-      <div className="bg-scene bg-scene-4" />
-
-      <div
-        className="absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      <div className="absolute inset-0 bg-black/25" />
-
-      <Suspense fallback={<div className="relative z-10 text-white">Loading...</div>}>
-        <LoginForm />
-      </Suspense>
-
-      <style jsx>{`
-        .bg-scene {
-          position: absolute;
-          inset: 0;
-          opacity: 0;
-          animation: cycle 24s infinite;
-        }
-        .bg-scene-1 {
-          background: linear-gradient(135deg, #1e3a8a, #2563eb, #3b82f6);
-          animation-delay: 0s;
-        }
-        .bg-scene-2 {
-          background: linear-gradient(135deg, #7c2d12, #ea580c, #f97316);
-          animation-delay: 6s;
-        }
-        .bg-scene-3 {
-          background: linear-gradient(135deg, #14532d, #16a34a, #22c55e);
-          animation-delay: 12s;
-        }
-        .bg-scene-4 {
-          background: linear-gradient(135deg, #581c87, #7c3aed, #a855f7);
-          animation-delay: 18s;
-        }
-        @keyframes cycle {
-          0% {
-            opacity: 0;
-          }
-          5% {
-            opacity: 1;
-          }
-          25% {
-            opacity: 1;
-          }
-          30% {
-            opacity: 0;
-          }
-          100% {
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </div>
+    <HeroSlideshow images={loginImages} interval={4000}>
+      <div className="min-h-screen flex items-center justify-center">
+        <Suspense fallback={<div className="relative z-10 text-white">Loading...</div>}>
+          <LoginForm />
+        </Suspense>
+      </div>
+    </HeroSlideshow>
   );
 }
