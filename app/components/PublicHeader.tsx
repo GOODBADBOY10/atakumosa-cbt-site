@@ -21,11 +21,11 @@ export function PublicHeader() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src="/images/logo.jpg"
-                        alt="Atakumosa High School Logo"
+                        alt="Atakunmosa High School Logo"
                         className="w-9 h-9 rounded-full object-cover"
                     />
                     <span className="font-semibold text-gray-900 text-sm sm:text-base">
-                        Atakumosa High School
+                        Atakunmosa High School
                     </span>
                 </Link>
 

@@ -207,6 +207,16 @@ export default function AdminDashboard() {
         Result Sheets →
       </a>
 
+      <a href="/admin/manage-admins" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
+        Manage Admins →
+      </a>
+      <a href="/admin/manage-teachers" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
+        Manage Teachers →
+      </a>
+      <a href="/admin/manage-students" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
+        All Students →
+      </a>
+
       {/* Subjects */}
       <section className="mb-10 bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Subjects</h2>
