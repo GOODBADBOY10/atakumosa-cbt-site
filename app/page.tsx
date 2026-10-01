@@ -72,22 +72,33 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {/* VISION & MISSION */}
+      {/* MISSION & VISION */}
       <section className="bg-gray-50 py-16">
-        <div className="max-w-4xl mx-auto px-6 grid sm:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2 text-blue-800">Our Vision</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {/* TODO: Replace with the school's actual vision statement */}
-              [Vision statement to be provided by the school.]
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-blue-800">Mission &amp; Vision</h3>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              To foster a lifelong relationship between the alma mater and its
+              alumni while offering a focal point of structural support,
+              coordination, and community link.
             </p>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2 text-blue-800">Our Mission</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {/* TODO: Replace with the school's actual mission statement */}
-              [Mission statement to be provided by the school.]
-            </p>
+            <ul className="text-gray-600 text-sm leading-relaxed list-disc pl-5 space-y-1">
+              <li>
+                <span className="font-medium">Promote Education &amp; Academic Excellence</span> — building
+                milestones such as digital ICT laboratories and modern
+                computer-based testing (CBT) systems.
+              </li>
+              <li>
+                <span className="font-medium">Student &amp; Staff Welfare</span> — funding student tuitions,
+                expanding school supply infrastructure, and establishing local
+                support for posted teachers.
+              </li>
+              <li>
+                <span className="font-medium">Unity and Networking</span> — strengthening team spirit,
+                organizing cross-decade reunions, and offering professional
+                mentorship to younger generations.
+              </li>
+            </ul>
           </div>
         </div>
       </section>
