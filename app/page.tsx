@@ -47,7 +47,7 @@ export default async function HomePage() {
           </div>
           <div className="mt-10 flex flex-wrap gap-3 justify-center">
             <a
-              href="#about"
+              href="#history"
               className="bg-white text-blue-800 px-6 py-2.5 rounded-lg font-medium hover:bg-blue-50 transition-colors"
             >
               Learn More

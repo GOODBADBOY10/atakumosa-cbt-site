@@ -7,7 +7,7 @@ export function PublicHeader() {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const navLinks = [
-        { href: "#about", label: "About" },
+        { href: "#history", label: "About" },
         { href: "#director", label: "Director" },
         { href: "#gallery", label: "Gallery" },
         { href: "#anthem", label: "Anthem" },
