@@ -57,7 +57,7 @@ export const subjects = pgTable("subjects", {
 export const studentClasses = pgTable("student_classes", {
   id: uuid("id").defaultRandom().primaryKey(),
   studentId: uuid("student_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   classId: uuid("class_id")
     .references(() => classes.id)

@@ -55,6 +55,19 @@ export default function ManageAdminsPage() {
         }
     };
 
+    const resetPassword = async (id: string, name: string) => {
+        const newPassword = prompt(`Enter a new temporary password for ${name} (min 8 characters):`);
+        if (!newPassword) return;
+
+        const res = await fetch(`/api/admin/admins/${id}/reset-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ newPassword }),
+        });
+        const data = await res.json();
+        setMessage(res.ok ? data.message : `Error: ${data.error}`);
+    };
+
     return (
         <div className="p-8 max-w-2xl mx-auto text-gray-900">
             <DashboardHeader title="Manage Admins" />
@@ -116,7 +129,13 @@ export default function ManageAdminsPage() {
                                     <p className="font-medium">{a.fullName}</p>
                                     <p className="text-gray-500 text-xs">{a.email}</p>
                                 </td>
-                                <td className="p-4 text-right">
+                                <td className="p-4 text-right space-x-3">
+                                    <button
+                                        onClick={() => resetPassword(a.id, a.fullName)}
+                                        className="text-blue-600 hover:underline text-sm"
+                                    >
+                                        Reset Password
+                                    </button>
                                     <button
                                         onClick={() => deleteAdmin(a.id, a.fullName)}
                                         className="text-red-600 hover:underline text-sm"
