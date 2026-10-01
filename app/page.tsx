@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { PublicHeader } from "@/app/components/PublicHeader";
 import { HeroSlideshow } from "@/app/components/HeroSlideshow";
+import { HistorySection } from "./components/HistorySection";
 
 export default async function HomePage() {
   const session = await auth();
@@ -62,15 +63,7 @@ export default async function HomePage() {
       </HeroSlideshow>
 
       {/* ABOUT / HISTORY */}
-      <section id="about" className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="text-2xl font-bold mb-4">About Our School</h2>
-        <p className="text-gray-600 leading-relaxed">
-          {/* TODO: Replace with the school's actual history text once provided */}
-          [Brief history of the school goes here — ask the school to provide a
-          few paragraphs about when it was founded, its founding vision, and
-          key milestones over the years.]
-        </p>
-      </section>
+      <HistorySection />
 
       {/* MISSION & VISION */}
       <section className="bg-gray-50 py-16">
