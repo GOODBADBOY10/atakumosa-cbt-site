@@ -10,7 +10,8 @@ import { logAction } from "@/lib/audit";
 const studentSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
   regNumber: z.string().trim().min(2).max(50),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().trim().min(2, "Password must be at least 2 characters"),
+  // password: z.string().min(6, "Password must be at least 6 characters"),
   classId: z.string().uuid(),
 });
 
