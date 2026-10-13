@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { db } from "../lib/db";
 import { users } from "../lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import readline from "readline";
 
@@ -25,7 +25,7 @@ async function main() {
     const [updated] = await db
         .update(users)
         .set({ passwordHash, mustChangePassword: true, isLocked: false, failedLoginAttempts: 0 })
-        .where(and(eq(users.email, email.trim().toLowerCase()), eq(users.role, "admin")))
+        .where(and(eq(users.email, email.trim().toLowerCase()), inArray(users.role, ["admin", "super_admin"])))
         .returning({ id: users.id, fullName: users.fullName });
 
     if (!updated) {
