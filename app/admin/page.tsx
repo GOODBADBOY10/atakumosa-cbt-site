@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { DashboardHeader } from "../components/DashboardHeader";
 
 type Subject = { id: string; name: string };
@@ -28,9 +29,10 @@ export default function AdminDashboard() {
   const [studentUploadErrors, setStudentUploadErrors] = useState<string[]>([]);
   const [uploadingStudents, setUploadingStudents] = useState(false);
   const [adding, setAdding] = useState(false);
-  const [addMessage, setAddMessage] = useState("");
   const [subjectMessage, setSubjectMessage] = useState("");
   const [classMessage, setClassMessage] = useState("");
+  const { data: session } = useSession();
+  const isSuperAdmin = session?.user?.role === "super_admin";
 
   const loadData = async () => {
     const [subRes, classRes] = await Promise.all([
@@ -219,31 +221,36 @@ export default function AdminDashboard() {
     <div className="p-8 max-w-4xl mx-auto text-gray-900">
       <DashboardHeader title="Admin Dashboard" />
 
-      <Link href="/admin/results" className="text-blue-600 hover:underline text-sm font-medium mb-6 inline-block">
-        Manage Results Release →
-      </Link>
-
-      <Link href="/admin/audit-logs" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
-        View Audit Log →
-      </Link>
-
-      <Link href="/admin/locked-accounts" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
-        Locked Accounts →
-      </Link>
-
-      <Link href="/admin/report-template" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
-        Result Sheets →
-      </Link>
-
-      <Link href="/admin/manage-admins" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
-        Manage Admins →
-      </Link>
-      <Link href="/admin/manage-teachers" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
-        Manage Teachers →
-      </Link>
-      <Link href="/admin/manage-students" className="text-blue-600 hover:underline text-sm font-medium mb-6 ml-4 inline-block">
-        All Students →
-      </Link>
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-6">
+        <Link href="/admin/results" className="text-blue-600 hover:underline text-sm font-medium">
+          Manage Results Release →
+        </Link>
+        <Link href="/admin/audit-logs" className="text-blue-600 hover:underline text-sm font-medium">
+          View Audit Log →
+        </Link>
+        <Link href="/admin/locked-accounts" className="text-blue-600 hover:underline text-sm font-medium">
+          Locked Accounts →
+        </Link>
+        <Link href="/admin/report-template" className="text-blue-600 hover:underline text-sm font-medium">
+          Result Sheets →
+        </Link>
+        <Link href="/admin/manage-teachers" className="text-blue-600 hover:underline text-sm font-medium">
+          Manage Teachers →
+        </Link>
+        <Link href="/admin/manage-students" className="text-blue-600 hover:underline text-sm font-medium">
+          All Students →
+        </Link>
+        {isSuperAdmin && (
+          <>
+            <Link href="/admin/manage-admins" className="text-purple-700 hover:underline text-sm font-medium">
+              Manage Admins →
+            </Link>
+            <Link href="/admin/oversight" className="text-purple-700 hover:underline text-sm font-medium">
+              Oversight →
+            </Link>
+          </>
+        )}
+      </div>
 
       {/* Subjects */}
       {subjectMessage && <p className="text-sm text-red-600 mb-3">{subjectMessage}</p>}

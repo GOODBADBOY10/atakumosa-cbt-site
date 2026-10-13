@@ -10,7 +10,10 @@ import {
 } from "drizzle-orm/pg-core";
 
 // ---------- ENUMS ----------
-export const roleEnum = pgEnum("role", ["admin", "teacher", "student"]);
+// export const roleEnum = pgEnum("role", ["admin", "teacher", "student"]);
+
+export const roleEnum = pgEnum("role", ["admin", "teacher", "student", "super_admin"]);
+
 export const questionTypeEnum = pgEnum("question_type", [
   "mcq",
   "true_false",

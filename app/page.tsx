@@ -7,7 +7,8 @@ import { HistorySection } from "./components/HistorySection";
 export default async function HomePage() {
   const session = await auth();
 
-  if (session?.user?.role === "admin") redirect("/admin");
+  // if (session?.user?.role === "admin") redirect("/admin");
+  if (session?.user?.role === "admin" || session?.user?.role === "super_admin") redirect("/admin");
   if (session?.user?.role === "teacher") redirect("/teacher");
   if (session?.user?.role === "student") redirect("/student");
 
