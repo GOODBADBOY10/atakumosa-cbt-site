@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { logAction } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { logAction } from "@/lib/audit";
+import { NextResponse } from "next/server";
 
 export async function POST(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth();
-    if (session?.user?.role !== "admin") {
+    if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 

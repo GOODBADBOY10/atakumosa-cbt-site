@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
-import { users, teacherAssignments } from "@/lib/db/schema";
-import { eq, and, ne } from "drizzle-orm";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
 import { logAction } from "@/lib/audit";
+import { db } from "@/lib/db";
+import { teacherAssignments, users } from "@/lib/db/schema";
+import bcrypt from "bcryptjs";
+import { and, eq, ne } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const updateSchema = z.object({
     fullName: z.string().trim().min(2).max(100).optional(),
@@ -26,7 +26,7 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth();
-    if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
+    if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin" && session?.user?.role !== "super_admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -126,7 +126,7 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth();
-    if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
+    if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin" && session?.user?.role !== "super_admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -177,7 +177,7 @@ export async function DELETE(
 //     { params }: { params: Promise<{ id: string }> }
 // ) {
 //     const session = await auth();
-//     if (session?.user?.role !== "admin") {
+//     if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
 //         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 //     }
 

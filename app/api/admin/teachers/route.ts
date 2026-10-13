@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
-import { users, teacherAssignments, subjects, classes } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
 import { logAction } from "@/lib/audit";
+import { db } from "@/lib/db";
+import { classes, subjects, teacherAssignments, users } from "@/lib/db/schema";
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const assignmentSchema = z.object({
   subjectId: z.string().uuid(),
@@ -23,7 +23,7 @@ const teacherSchema = z.object({
 
 export async function GET() {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -68,7 +68,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

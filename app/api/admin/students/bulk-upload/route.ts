@@ -1,12 +1,11 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
-import { users, studentClasses, classes } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import * as XLSX from "xlsx";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
 import { logAction } from "@/lib/audit";
+import { db } from "@/lib/db";
+import { classes, studentClasses, users } from "@/lib/db/schema";
+import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server";
+import * as XLSX from "xlsx";
+import { z } from "zod";
 
 const rowSchema = z.object({
   FullName: z.string().trim().min(2),
@@ -17,7 +16,7 @@ const rowSchema = z.object({
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (session?.user?.role !== "admin" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

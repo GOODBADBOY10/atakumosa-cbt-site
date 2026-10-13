@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { logAction } from "@/lib/audit";
@@ -16,7 +16,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+    if (session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -45,7 +45,7 @@ export async function POST(
         isLocked: false,
         failedLoginAttempts: 0,
       })
-      .where(eq(users.id, id))
+      .where(and(eq(users.id, id), eq(users.role, "admin")))
       .returning({ id: users.id, fullName: users.fullName });
 
     if (!updated) {
