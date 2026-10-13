@@ -117,43 +117,57 @@ export async function POST(req: Request) {
   }
 
   try {
-    let createdCount = 0;
-
+    // Hash first (the slow part), outside the database transaction
+    const prepared: {
+      fullName: string;
+      regNumber: string;
+      classId: string;
+      password: string;
+      passwordHash: string;
+    }[] = [];
     for (const row of validRows) {
-      const passwordHash = await bcrypt.hash(row.password, 10);
-
-      const [newStudent] = await db
-        .insert(users)
-        .values({
-          email: `${row.regNumber}@student.local`,
-          fullName: row.fullName,
-          regNumber: row.regNumber,
-          passwordHash,
-          role: "student",
-          mustChangePassword: false, // school wants surname to stay as the permanent password
-        })
-        .returning({ id: users.id });
-
-      await db.insert(studentClasses).values({
-        studentId: newStudent.id,
-        classId: row.classId,
-      });
-
-      createdCount++;
+      prepared.push({ ...row, passwordHash: await bcrypt.hash(row.password, 10) });
     }
 
+    // Save every student and class link together: all succeed, or none do
+    await db.transaction(async (tx) => {
+      const inserted = await tx
+        .insert(users)
+        .values(
+          prepared.map((r) => ({
+            email: `${r.regNumber}@student.local`,
+            fullName: r.fullName,
+            regNumber: r.regNumber,
+            passwordHash: r.passwordHash,
+            role: "student" as const,
+            mustChangePassword: false,
+          }))
+        )
+        .returning({ id: users.id, regNumber: users.regNumber });
+
+      const idByReg = new Map(inserted.map((u) => [u.regNumber, u.id]));
+
+      await tx.insert(studentClasses).values(
+        prepared.map((r) => {
+          const studentId = idByReg.get(r.regNumber);
+          if (!studentId) throw new Error(`Missing ID for ${r.regNumber}`);
+          return { studentId, classId: r.classId };
+        })
+      );
+    });
+
     await logAction(session.user.id, "admin", "bulk_created_students", {
-      count: createdCount,
+      count: prepared.length,
     });
 
     return NextResponse.json({
-      message: `${createdCount} students created successfully`,
-      count: createdCount,
+      message: `${prepared.length} students created successfully`,
+      count: prepared.length,
     });
   } catch (err) {
     console.error("Failed to bulk create students:", err);
     return NextResponse.json(
-      { error: "Something went wrong while saving. Please try again." },
+      { error: "Something went wrong while saving. Nothing was saved. Please try again." },
       { status: 500 }
     );
   }

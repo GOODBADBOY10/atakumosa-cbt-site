@@ -72,21 +72,33 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const [newStudent] = await db
-      .insert(users)
-      .values({
-        email: `${regNumber}@student.local`,
-        fullName,
-        regNumber,
-        passwordHash,
-        role: "student",
-        mustChangePassword: false, // school wants surname to stay as the permanent password
-      })
-      .returning({ id: users.id, fullName: users.fullName, regNumber: users.regNumber });
+    // Create the student AND their class link together. If either fails,
+    // neither is saved, so we can never get a student with no class again.
+    const newStudent = await db.transaction(async (tx) => {
+      const [student] = await tx
+        .insert(users)
+        .values({
+          email: `${regNumber}@student.local`,
+          fullName,
+          regNumber,
+          passwordHash,
+          role: "student",
+          mustChangePassword: false,
+        })
+        .returning({ id: users.id, fullName: users.fullName, regNumber: users.regNumber });
+
+      await tx.insert(studentClasses).values({
+        studentId: student.id,
+        classId,
+      });
+
+      return student;
+    });
 
     await logAction(session.user.id, "admin", "created_student", {
       studentId: newStudent.id,
       regNumber: newStudent.regNumber,
+      classId,
     });
 
     return NextResponse.json(newStudent);
