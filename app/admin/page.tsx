@@ -27,6 +27,8 @@ export default function AdminDashboard() {
   const [studentUploadMessage, setStudentUploadMessage] = useState("");
   const [studentUploadErrors, setStudentUploadErrors] = useState<string[]>([]);
   const [uploadingStudents, setUploadingStudents] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [addMessage, setAddMessage] = useState("");
 
   const loadData = async () => {
     const [subRes, classRes] = await Promise.all([
@@ -42,25 +44,47 @@ export default function AdminDashboard() {
   }, []);
 
   const addSubject = async () => {
-    if (!newSubject.trim()) return;
-    await fetch("/api/admin/subjects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newSubject }),
-    });
-    setNewSubject("");
-    loadData();
+    if (!newSubject.trim() || adding) return;
+    setAdding(true);
+    setAddMessage("");
+    try {
+      const res = await fetch("/api/admin/subjects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newSubject }),
+      });
+      if (res.ok) {
+        setNewSubject("");
+      } else {
+        const data = await res.json();
+        setAddMessage(data.error || "Could not add subject");
+      }
+      await loadData();
+    } finally {
+      setAdding(false);
+    }
   };
 
   const addClass = async () => {
-    if (!newClass.trim()) return;
-    await fetch("/api/admin/classes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newClass }),
-    });
-    setNewClass("");
-    loadData();
+    if (!newClass.trim() || adding) return;
+    setAdding(true);
+    setAddMessage("");
+    try {
+      const res = await fetch("/api/admin/classes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newClass }),
+      });
+      if (res.ok) {
+        setNewClass("");
+      } else {
+        const data = await res.json();
+        setAddMessage(data.error || "Could not add class");
+      }
+      await loadData();
+    } finally {
+      setAdding(false);
+    }
   };
 
   const toggleAssignment = (subjectId: string, classId: string) => {
@@ -168,7 +192,6 @@ export default function AdminDashboard() {
     const templateData = [
       { FullName: "Chidinma Okoro", RegNumber: "STU001", ClassName: "JSS2A", Password: "Okoro" },
       { FullName: "Tunde Bello", RegNumber: "STU002", ClassName: "JSS2A", Password: "Bello" },
-      { FullName: "", RegNumber: "", ClassName: "", Password: "" },
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(templateData);

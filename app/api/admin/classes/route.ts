@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { classes } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 const classSchema = z.object({
@@ -49,10 +49,15 @@ export async function POST(req: Request) {
   }
 
   try {
+    // const existing = await db
+    //   .select()
+    //   .from(classes)
+    //   .where(eq(classes.name, parsed.data.name));
+
     const existing = await db
       .select()
       .from(classes)
-      .where(eq(classes.name, parsed.data.name));
+      .where(sql`lower(${classes.name}) = ${parsed.data.name.toLowerCase()}`);
 
     if (existing.length > 0) {
       return NextResponse.json(
@@ -68,6 +73,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newClass);
   } catch (err) {
+    const e = err as { code?: string; cause?: { code?: string } };
+    if ((e.code ?? e.cause?.code) === "23505") {
+      return NextResponse.json(
+        { error: "A class with this name already exists" },
+        { status: 409 }
+      );
+    }
     console.error("Failed to create class:", err);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },

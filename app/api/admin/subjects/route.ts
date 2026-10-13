@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { subjects } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { z } from "zod";
 
 const subjectSchema = z.object({
@@ -49,10 +49,11 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Case-insensitive check, so "economics" and "ECONOMICS" count as the same subject
     const existing = await db
       .select()
       .from(subjects)
-      .where(eq(subjects.name, parsed.data.name));
+      .where(sql`lower(${subjects.name}) = ${parsed.data.name.toLowerCase()}`);
 
     if (existing.length > 0) {
       return NextResponse.json(
@@ -68,6 +69,16 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newSubject);
   } catch (err) {
+    // Two requests arriving at the same instant (a double-click) can both pass the
+    // check above. The database's unique rule rejects the second one (code 23505).
+    const e = err as { code?: string; cause?: { code?: string } };
+    if ((e.code ?? e.cause?.code) === "23505") {
+      return NextResponse.json(
+        { error: "A subject with this name already exists" },
+        { status: 409 }
+      );
+    }
+
     console.error("Failed to create subject:", err);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },

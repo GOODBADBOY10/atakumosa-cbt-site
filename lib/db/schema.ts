@@ -42,7 +42,8 @@ export const users = pgTable("users", {
 // ---------- CLASSES ----------
 export const classes = pgTable("classes", {
   id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(), // e.g. "JSS2A"
+  name: text("name").notNull().unique(),
+  // name: text("name").notNull(), // e.g. "JSS2A"
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
