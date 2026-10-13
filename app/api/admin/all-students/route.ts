@@ -20,9 +20,13 @@ export async function GET(req: Request) {
                 classId: classes.id,
             })
             .from(users)
-            .innerJoin(studentClasses, eq(studentClasses.studentId, users.id))
-            .innerJoin(classes, eq(studentClasses.classId, classes.id))
+            .leftJoin(studentClasses, eq(studentClasses.studentId, users.id))
+            .leftJoin(classes, eq(studentClasses.classId, classes.id))
             .where(eq(users.role, "student"));
+        // .from(users)
+        // .innerJoin(studentClasses, eq(studentClasses.studentId, users.id))
+        // .innerJoin(classes, eq(studentClasses.classId, classes.id))
+        // .where(eq(users.role, "student"));
 
         results.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
