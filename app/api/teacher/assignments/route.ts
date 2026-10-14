@@ -1,16 +1,32 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { teacherAssignments, subjects, classes } from "@/lib/db/schema";
+import { classes, subjects, teacherAssignments } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   try {
+    if (session.user.role === "super_admin") {
+      // Super admin can work with every subject in every class
+      const allSubjects = await db.select().from(subjects);
+      const allClasses = await db.select().from(classes);
+      return NextResponse.json(
+        allSubjects.flatMap((s) =>
+          allClasses.map((c) => ({
+            id: `${s.id}:${c.id}`,
+            subjectId: s.id,
+            subjectName: s.name,
+            classId: c.id,
+            className: c.name,
+          }))
+        )
+      );
+    }
     const assignments = await db
       .select({
         id: teacherAssignments.id,

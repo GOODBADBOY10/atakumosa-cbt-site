@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { exams, examQuestions, teacherAssignments, questions } from "@/lib/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { examQuestions, exams, questions, teacherAssignments } from "@/lib/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const examSchema = z.object({
@@ -34,7 +34,7 @@ async function teacherOwnsSubjectClass(teacherId: string, subjectId: string, cla
 
 export async function GET() {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -42,7 +42,7 @@ export async function GET() {
     const myExams = await db
       .select()
       .from(exams)
-      .where(eq(exams.createdBy, session.user.id));
+      .where((session.user.role === "super_admin" ? undefined : eq(exams.createdBy, session.user.id)));
 
     return NextResponse.json(myExams);
   } catch (err) {
@@ -53,7 +53,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
   const data = parsed.data;
 
   // Security check: teacher must be assigned to this exact subject+class combo
-  const owns = await teacherOwnsSubjectClass(session.user.id, data.subjectId, data.classId);
+  const owns = session.user.role === "super_admin" || await teacherOwnsSubjectClass(session.user.id, data.subjectId, data.classId);
   if (!owns) {
     return NextResponse.json(
       { error: "You are not assigned to this subject/class combination" },

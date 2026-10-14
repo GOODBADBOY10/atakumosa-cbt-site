@@ -68,6 +68,31 @@ export default function ManageAdminsPage() {
         setMessage(res.ok ? data.message : `Error: ${data.error}`);
     };
 
+    const editAdmin = async (a: Admin) => {
+        const fullName = prompt("Full name:", a.fullName);
+        if (fullName === null) return;
+        const email = prompt("Email (this is also their login):", a.email);
+        if (email === null) return;
+
+        const body: Record<string, string> = {};
+        if (fullName.trim() && fullName.trim() !== a.fullName) body.fullName = fullName.trim();
+        if (email.trim() && email.trim().toLowerCase() !== a.email.toLowerCase()) body.email = email.trim();
+
+        if (Object.keys(body).length === 0) {
+            setMessage("No changes made");
+            return;
+        }
+
+        const res = await fetch(`/api/admin/admins/${a.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        setMessage(res.ok ? data.message : `Error: ${data.error}`);
+        if (res.ok) load();
+    };
+
     return (
         <div className="p-8 max-w-2xl mx-auto text-gray-900">
             <DashboardHeader title="Manage Admins" />
@@ -136,6 +161,11 @@ export default function ManageAdminsPage() {
                                     >
                                         Reset Password
                                     </button>
+
+                                    <button onClick={() => editAdmin(a)} className="text-blue-600 hover:underline text-sm">
+                                        Edit
+                                    </button>
+                                    
                                     <button
                                         onClick={() => deleteAdmin(a.id, a.fullName)}
                                         className="text-red-600 hover:underline text-sm"

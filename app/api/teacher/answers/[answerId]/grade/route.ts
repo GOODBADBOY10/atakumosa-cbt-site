@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { logAction } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { answers, examAttempts, exams, questions } from "@/lib/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { z } from "zod";
-import { logAction } from "@/lib/audit";
 
 const gradeSchema = z.object({
   pointsAwarded: z.number().int().min(0),
@@ -16,7 +16,7 @@ export async function PATCH(
   { params }: { params: Promise<{ answerId: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -48,7 +48,7 @@ export async function PATCH(
       .innerJoin(exams, eq(examAttempts.examId, exams.id))
       .where(eq(answers.id, answerId));
 
-    if (!answerRow || answerRow.createdBy !== session.user.id) {
+    if (!answerRow || (answerRow.createdBy !== session.user.id && session.user.role !== "super_admin")) {
       return NextResponse.json(
         { error: "You don't have permission to grade this answer" },
         { status: 403 }
@@ -93,7 +93,7 @@ export async function PATCH(
       })
       .where(eq(examAttempts.id, answerRow.attemptId));
 
-    await logAction(session.user.id, "teacher", "graded_answer", {
+    await logAction(session.user.id, session.user.role, "graded_answer", {
       answerId,
       pointsAwarded: parsed.data.pointsAwarded,
     });

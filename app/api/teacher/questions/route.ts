@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { questions, teacherAssignments } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const questionSchema = z.object({
@@ -40,7 +40,7 @@ async function teacherOwnsSubject(teacherId: string, subjectId: string) {
 
 export async function GET(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "subjectId is required" }, { status: 400 });
   }
 
-  const owns = await teacherOwnsSubject(session.user.id, subjectId);
+  const owns = session.user.role === "super_admin" || await teacherOwnsSubject(session.user.id, subjectId);
   if (!owns) {
     return NextResponse.json(
       { error: "You are not assigned to this subject" },
@@ -77,7 +77,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
   const data = parsed.data;
 
   // THE KEY SECURITY CHECK: is this teacher actually allowed to touch this subject?
-  const owns = await teacherOwnsSubject(session.user.id, data.subjectId);
+  const owns = session.user.role === "super_admin" || await teacherOwnsSubject(session.user.id, data.subjectId);
   if (!owns) {
     return NextResponse.json(
       { error: "You are not assigned to this subject" },

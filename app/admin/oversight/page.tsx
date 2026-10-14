@@ -255,6 +255,7 @@ export default function OversightPage() {
                                 <th className="text-left p-3">Questions</th>
                                 <th className="text-left p-3">Submitted / Started</th>
                                 <th className="text-left p-3">Results</th>
+                                <th className="p-3"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -273,6 +274,10 @@ export default function OversightPage() {
                                         {e.submitted} / {e.started}
                                     </td>
                                     <td className="p-3 text-xs">{e.resultsReleased ? "Released" : "Hidden"}</td>
+                                    <td className="p-3 whitespace-nowrap space-x-3 text-xs">
+                                        <a href={`/teacher/exams/${e.id}/results`} className="text-blue-600 hover:underline">Results</a>
+                                        <a href={`/teacher/exams/${e.id}/analytics`} className="text-blue-600 hover:underline">Analytics</a>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

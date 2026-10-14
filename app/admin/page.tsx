@@ -245,6 +245,9 @@ export default function AdminDashboard() {
             <Link href="/admin/manage-admins" className="text-purple-700 hover:underline text-sm font-medium">
               Manage Admins →
             </Link>
+            <Link href="/teacher" className="text-purple-700 hover:underline text-sm font-medium">
+              Teacher Tools →
+            </Link>
             <Link href="/admin/oversight" className="text-purple-700 hover:underline text-sm font-medium">
               Oversight →
             </Link>

@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { exams, examAttempts, examQuestions, questions, answers } from "@/lib/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { answers, examAttempts, examQuestions, exams, questions } from "@/lib/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth();
-    if (session?.user?.role !== "teacher") {
+    if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -19,7 +19,7 @@ export async function GET(
         const [exam] = await db
             .select()
             .from(exams)
-            .where(and(eq(exams.id, examId), eq(exams.createdBy, session.user.id)));
+            .where(and(eq(exams.id, examId), (session.user.role === "super_admin" ? undefined : eq(exams.createdBy, session.user.id))));
 
         if (!exam) {
             return NextResponse.json(

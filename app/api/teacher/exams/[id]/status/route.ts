@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { logAction } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { exams } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { z } from "zod";
-import { logAction } from "@/lib/audit";
 
 const statusSchema = z.object({
   status: z.enum(["draft", "published", "closed"]),
@@ -15,7 +15,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -38,7 +38,7 @@ export async function PATCH(
     const [updated] = await db
       .update(exams)
       .set({ status: parsed.data.status })
-      .where(and(eq(exams.id, id), eq(exams.createdBy, session.user.id)))
+      .where(and(eq(exams.id, id), (session.user.role === "super_admin" ? undefined : eq(exams.createdBy, session.user.id))))
       .returning();
 
     if (!updated) {
@@ -48,7 +48,7 @@ export async function PATCH(
       );
     }
 
-    await logAction(session.user.id, "teacher", `exam_status_${parsed.data.status}`, {
+    await logAction(session.user.id, session.user.role, `exam_status_${parsed.data.status}`, {
       examId: id,
     });
 

@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { questions, examQuestions } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { examQuestions, questions } from "@/lib/db/schema";
+import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -25,7 +25,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -48,7 +48,7 @@ export async function PATCH(
     const [updated] = await db
       .update(questions)
       .set(parsed.data)
-      .where(and(eq(questions.id, id), eq(questions.createdBy, session.user.id)))
+      .where(and(eq(questions.id, id), (session.user.role === "super_admin" ? undefined : eq(questions.createdBy, session.user.id))))
       .returning();
 
     if (!updated) {
@@ -70,7 +70,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -96,7 +96,7 @@ export async function DELETE(
 
     const [deleted] = await db
       .delete(questions)
-      .where(and(eq(questions.id, id), eq(questions.createdBy, session.user.id)))
+      .where(and(eq(questions.id, id), (session.user.role === "super_admin" ? undefined : eq(questions.createdBy, session.user.id))))
       .returning();
 
     if (!deleted) {

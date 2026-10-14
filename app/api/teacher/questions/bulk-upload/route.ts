@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { questions, teacherAssignments } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { z } from "zod";
 
@@ -35,7 +35,7 @@ async function teacherOwnsSubject(teacherId: string, subjectId: string) {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "teacher") {
+  if (session?.user?.role !== "teacher" && session?.user?.role !== "super_admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const owns = await teacherOwnsSubject(session.user.id, subjectId);
+  const owns = session.user.role === "super_admin" || await teacherOwnsSubject(session.user.id, subjectId);
   if (!owns) {
     return NextResponse.json(
       { error: "You are not assigned to this subject" },
